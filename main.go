@@ -14,9 +14,13 @@ func main() {
 }
 
 func run(addr string) error {
-	srv := &http.Server{
-		Addr: addr,
+	srv := &Server{
+		&http.Server{
+			Addr: addr,
+		},
+		nil,
 	}
+	srv.Handler = srv.routes()
 
 	log.Println("Serving on", srv.Addr)
 	return srv.ListenAndServe()
