@@ -1,6 +1,11 @@
 package main
 
-import "net/http"
+import (
+	"fmt"
+	"net/http"
+
+	"github.com/gorilla/mux"
+)
 
 // Server is a http server that holds handler dependencies
 type Server struct {
@@ -9,5 +14,9 @@ type Server struct {
 }
 
 func (s *Server) routes() http.Handler {
-	return nil
+	r := mux.NewRouter()
+
+	r.HandleFunc(fmt.Sprintf("/{id:%s}", UserIDFormat), s.handlePortfolioGet()).Methods(http.MethodGet)
+
+	return r
 }
