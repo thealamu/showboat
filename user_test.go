@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"regexp"
 	"testing"
 )
@@ -21,8 +22,8 @@ func TestUserRegexFormat(t *testing.T) {
 		{"1369user", true},
 	}
 
+	rgx := regexp.MustCompile(fmt.Sprintf("^%s$", UserIDFormat))
 	for _, tc := range testCases {
-		rgx := regexp.MustCompile(UserIDFormat)
 		if rgx.MatchString(tc.userID) != tc.isGood {
 			t.Errorf("expected %t, got %t for userID %s", tc.isGood, !tc.isGood, tc.userID)
 		}

@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/matryer/is"
@@ -27,5 +28,8 @@ func TestGetUserPortfolio(t *testing.T) {
 	expected, err := json.Marshal(getTestPortfolio())
 	is.NoErr(err)
 
-	is.Equal(string(expected), string(rrBody))
+	rrBodyStr := strings.TrimSpace(string(rrBody))
+	expectedStr := strings.TrimSpace(string(expected))
+
+	is.Equal(expectedStr, rrBodyStr)
 }
