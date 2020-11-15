@@ -13,6 +13,10 @@ func (s *Server) handlePortfolioGet() http.HandlerFunc {
 
 		portfolio, err := s.db.GetPortfolio(r.Context(), userID)
 		if err != nil {
+			if err == ErrUnknownUser {
+				s.Error(w, err, http.StatusBadRequest)
+				return
+			}
 			s.Error(w, err, http.StatusInternalServerError)
 			return
 		}

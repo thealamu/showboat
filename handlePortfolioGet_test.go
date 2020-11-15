@@ -1,11 +1,9 @@
 package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"github.com/matryer/is"
@@ -15,23 +13,24 @@ import (
 func TestGetUserPortfolio(t *testing.T) {
 	is := is.New(t)
 	s := &Server{
-		db:     TestDB{},
+		db:     &TestDB{},
 		logger: log.New(),
 	}
 
+	testCases := []struct {
+		userid string
+		code   int
+	}{
+		{"user1369", http.StatusOK},
+		{"foobar", http.StatusBadRequest},
+	}
+
 	handler := s.routes()
-	req := httptest.NewRequest(http.MethodGet, "/user1369", nil)
-	rr := httptest.NewRecorder()
+	for _, tc := range testCases {
+		req := httptest.NewRequest(http.MethodGet, fmt.Sprintf("/%s", tc.userid), nil)
+		rr := httptest.NewRecorder()
 
-	handler.ServeHTTP(rr, req)
-	rrBody, err := ioutil.ReadAll(rr.Body)
-	is.NoErr(err)
-
-	expected, err := json.Marshal(getTestPortfolio())
-	is.NoErr(err)
-
-	rrBodyStr := strings.TrimSpace(string(rrBody))
-	expectedStr := strings.TrimSpace(string(expected))
-
-	is.Equal(expectedStr, rrBodyStr)
+		handler.ServeHTTP(rr, req)
+		is.Equal(tc.code, rr.Code)
+	}
 }
