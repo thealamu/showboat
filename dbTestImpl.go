@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 )
 
 //TestDB is a test implementation of the DB interface
@@ -23,21 +22,26 @@ func (t *TestDB) HasUser(ctx context.Context, uid UserID) (bool, error) {
 }
 
 func (t *TestDB) CreateUser(ctx context.Context, uid UserID, pwd Password) error {
+	exists, _ := t.HasUser(nil, uid)
+	if exists {
+		return ErrUserExists
+	}
+
 	t.users = append(t.users, uid)
 	return nil
 }
 
 func (t *TestDB) GetPortfolio(ctx context.Context, uid UserID) (Portfolio, error) {
+	if uid == goodTestUser {
+		return getTestPortfolio(), nil
+	}
+
 	exists, _ := t.HasUser(nil, uid)
 	if !exists {
-		return Portfolio{}, errors.New("user does not exist")
+		return Portfolio{}, ErrUnknownUser
 	}
 
-	if uid != goodTestUser {
-		return Portfolio{}, nil
-	}
-
-	return getTestPortfolio(), nil
+	return Portfolio{}, nil
 }
 
 func getTestPortfolio() Portfolio {
