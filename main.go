@@ -16,7 +16,7 @@ func main() {
 		&http.Server{
 			Addr: getRunAddr(),
 		},
-		TestDB{},
+		&TestDB{},
 		logger,
 	}
 	srv.Handler = srv.routes()

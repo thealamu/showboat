@@ -24,6 +24,7 @@ func (s *Server) routes() http.Handler {
 	r := mux.NewRouter()
 
 	r.HandleFunc(fmt.Sprintf("/{id:%s}", UserIDFormat), s.handlePortfolioGet()).Methods(http.MethodGet)
+	r.HandleFunc("/signup", s.handleSignup()).Methods(http.MethodPost)
 
 	return r
 }
