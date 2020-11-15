@@ -1,29 +1,29 @@
 package main
 
 import (
-	"log"
 	"net"
 	"net/http"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
-	if err := run(getRunAddr()); err != nil {
-		log.Fatal(err)
-	}
-}
+	logger := log.New()
+	logger.SetLevel(log.DebugLevel)
 
-func run(addr string) error {
 	srv := &Server{
 		&http.Server{
-			Addr: addr,
+			Addr: getRunAddr(),
 		},
-		nil,
+		TestDB{},
+		logger,
 	}
 	srv.Handler = srv.routes()
 
-	log.Println("Serving on", srv.Addr)
-	return srv.ListenAndServe()
+	if err := srv.Start(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func getRunAddr() string {

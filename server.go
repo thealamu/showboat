@@ -5,12 +5,19 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 )
 
 // Server is a http server that holds handler dependencies
 type Server struct {
 	*http.Server
-	db DB
+	db     DB
+	logger *log.Logger
+}
+
+func (s *Server) Start() error {
+	s.logger.Infof("Serving on %s", s.Addr)
+	return s.ListenAndServe()
 }
 
 func (s *Server) routes() http.Handler {

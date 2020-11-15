@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -10,7 +9,7 @@ import (
 func (s *Server) handlePortfolioGet() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		userID := mux.Vars(r)["id"]
-		log.Printf("Getting portfolio for user %s", userID)
+		s.logger.Infof("Getting portfolio for user '%s'", userID)
 
 		portfolio, err := s.db.GetPortfolio(r.Context(), userID)
 		if err != nil {

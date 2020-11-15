@@ -19,7 +19,7 @@ func (s *Server) JSON(w http.ResponseWriter, data interface{}, statusCode int) {
 	w.WriteHeader(statusCode)
 	err := json.NewEncoder(w).Encode(data)
 	if err != nil {
-		log.Println(err)
+		s.logger.Error(err)
 	}
 }
 

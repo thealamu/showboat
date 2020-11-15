@@ -9,12 +9,14 @@ import (
 	"testing"
 
 	"github.com/matryer/is"
+	log "github.com/sirupsen/logrus"
 )
 
 func TestGetUserPortfolio(t *testing.T) {
 	is := is.New(t)
 	s := &Server{
-		db: TestDB{},
+		db:     TestDB{},
+		logger: log.New(),
 	}
 
 	handler := s.routes()
