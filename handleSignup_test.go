@@ -35,9 +35,10 @@ func TestHandleSignup(t *testing.T) {
 		code     int
 	}{
 		{"GoodParams", "foobar", "foobarpassword", http.StatusCreated},
-		{"BadPassword", "user", "", http.StatusBadRequest},
-		{"BadUserID", "", "pwd", http.StatusBadRequest},
+		{"EmptyPassword", "user", "", http.StatusBadRequest},
+		{"EmptyUserID", "", "pwd", http.StatusBadRequest},
 		{"UserAlreadyExists", "foobar", "foob", http.StatusBadRequest},
+		{"BadUserID", "foo-bar", "foob", http.StatusBadRequest},
 	}
 
 	for _, tc := range testCases {

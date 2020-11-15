@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
@@ -15,6 +17,14 @@ func (s *Server) signupUser(ctx context.Context, userid, password string) (strin
 
 	if userid == "" || password == "" {
 		return "", errors.New("userid and password are required")
+	}
+
+	isValid, err := regexp.MatchString(fmt.Sprintf("^%s$", UserIDFormat), userid)
+	if err != nil {
+		return "", err
+	}
+	if !isValid {
+		return "", errors.New("userid is invalid")
 	}
 
 	userExists, err := s.db.HasUser(ctx, userid)
