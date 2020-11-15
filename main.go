@@ -2,7 +2,6 @@ package main
 
 import (
 	"net"
-	"net/http"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -12,15 +11,16 @@ func main() {
 	logger := log.New()
 	logger.SetLevel(log.DebugLevel)
 
-	srv := &Server{
-		&http.Server{
-			Addr: getRunAddr(),
-		},
-		&TestDB{},
-		logger,
-	}
-	srv.Handler = srv.routes()
+	secret := os.Getenv("HMACSECRET")
 
+	cfg := ServerConfig{
+		logger:     logger,
+		db:         &TestDB{},
+		Addr:       getRunAddr(),
+		hmacSecret: secret,
+	}
+
+	srv := NewServer(cfg)
 	if err := srv.Start(); err != nil {
 		log.Fatal(err)
 	}

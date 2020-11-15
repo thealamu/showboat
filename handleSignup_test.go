@@ -23,10 +23,10 @@ func TestHandleSignup(t *testing.T) {
 		Token string `json:"token"`
 	}
 
-	srv := &Server{
+	srv := NewServer(ServerConfig{
 		db:     &TestDB{},
 		logger: log.New(),
-	}
+	})
 
 	testCases := []struct {
 		desc     string

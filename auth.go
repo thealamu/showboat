@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"os"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
@@ -45,10 +44,5 @@ func (s *Server) createToken(userid string) (string, error) {
 		"uid": userid,
 	})
 
-	hmacSecret, ok := os.LookupEnv("HMACSECRET")
-	if !ok {
-		s.logger.Fatal("hmacsecret not found in env")
-	}
-
-	return token.SignedString([]byte(hmacSecret))
+	return token.SignedString([]byte(s.hmacSecret))
 }

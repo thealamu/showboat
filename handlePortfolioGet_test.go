@@ -12,10 +12,10 @@ import (
 
 func TestGetUserPortfolio(t *testing.T) {
 	is := is.New(t)
-	s := &Server{
+	s := NewServer(ServerConfig{
 		db:     &TestDB{},
 		logger: log.New(),
-	}
+	})
 
 	testCases := []struct {
 		userid string
