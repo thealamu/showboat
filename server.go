@@ -63,6 +63,7 @@ func (s *Server) routes() http.Handler {
 	})
 
 	r.HandleFunc("/i/user", s.handleAuthMiddleware(s.handleUidForToken()))
+	r.HandleFunc("/login", s.handleLogin()).Methods(http.MethodPost)
 	r.HandleFunc("/signup", s.handleSignup()).Methods(http.MethodPost)
 	r.HandleFunc(fmt.Sprintf("/{id:%s}", UserIDFormat), s.handlePortfolioGet()).Methods(http.MethodGet, http.MethodHead)
 

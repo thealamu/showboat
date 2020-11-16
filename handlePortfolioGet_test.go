@@ -13,7 +13,7 @@ import (
 func TestGetUserPortfolio(t *testing.T) {
 	is := is.New(t)
 	s := NewServer(ServerConfig{
-		db:     &TestDB{},
+		db:     NewTestDB(),
 		logger: log.New(),
 	})
 

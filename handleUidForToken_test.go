@@ -18,7 +18,7 @@ func TestHandleUidForToken(t *testing.T) {
 	logger.SetLevel(log.DebugLevel)
 	srv := NewServer(ServerConfig{
 		logger:     logger,
-		db:         &TestDB{},
+		db:         NewTestDB(),
 		hmacSecret: "testSecret",
 	})
 

@@ -2,21 +2,24 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"regexp"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
-//signupUser creates a new user with the credentials and returns a token
-func (s *Server) signupUser(ctx context.Context, userid, password string) (string, error) {
+//ErrBadCredInput holds input validation errors
+var ErrBadCredInput = errors.New("bad credential input")
+
+func (s *Server) loginUser(ctx context.Context, userid, password string) (string, error) {
 	userid = strings.TrimSpace(userid)
 	password = strings.TrimSpace(password)
 
 	if userid == "" || password == "" {
-		return "", errors.New("userid and password are required")
+		return "", errors.Wrap(ErrBadCredInput, "userid and password are required")
 	}
 
 	isValid, err := regexp.MatchString(fmt.Sprintf("^%s$", UserIDFormat), userid)
@@ -24,7 +27,35 @@ func (s *Server) signupUser(ctx context.Context, userid, password string) (strin
 		return "", err
 	}
 	if !isValid {
-		return "", errors.New("userid is invalid")
+		return "", errors.Wrap(ErrBadCredInput, "userid is invalid")
+	}
+
+	isValidCreds, err := s.db.MatchCredentials(ctx, userid, password)
+	if err != nil {
+		return "", err
+	}
+	if !isValidCreds {
+		return "", errors.New("userid or password is incorrect")
+	}
+
+	return s.createToken(userid)
+}
+
+//signupUser creates a new user with the credentials and returns a token
+func (s *Server) signupUser(ctx context.Context, userid, password string) (string, error) {
+	userid = strings.TrimSpace(userid)
+	password = strings.TrimSpace(password)
+
+	if userid == "" || password == "" {
+		return "", errors.Wrap(ErrBadCredInput, "userid and password are required")
+	}
+
+	isValid, err := regexp.MatchString(fmt.Sprintf("^%s$", UserIDFormat), userid)
+	if err != nil {
+		return "", err
+	}
+	if !isValid {
+		return "", errors.Wrap(ErrBadCredInput, "userid is invalid")
 	}
 
 	userExists, err := s.db.HasUser(ctx, userid)

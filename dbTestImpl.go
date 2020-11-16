@@ -2,23 +2,45 @@ package main
 
 import (
 	"context"
+	"sync"
+)
+
+const (
+	goodTestUser     = "user1369"
+	goodTestPassword = "user1369Password"
 )
 
 //TestDB is a test implementation of the DB interface
 type TestDB struct {
-	users []UserID
+	sync.RWMutex
+	data map[UserID]Password
 }
 
-const goodTestUser = "user1369"
+func NewTestDB() *TestDB {
+	data := make(map[UserID]Password)
+	data[goodTestUser] = goodTestPassword
+	return &TestDB{data: data}
+}
 
-func (t *TestDB) HasUser(ctx context.Context, uid UserID) (bool, error) {
-	for _, user := range t.users {
-		if user == uid {
-			return true, nil
-		}
+func (t *TestDB) MatchCredentials(ctx context.Context, uid UserID, pwd Password) (bool, error) {
+	exists, err := t.HasUser(ctx, uid)
+	if err != nil {
+		return false, err
+	}
+	if !exists {
+		return false, ErrUnknownUser
 	}
 
-	return false, nil
+	t.RLock()
+	defer t.RUnlock()
+	return t.data[uid] == pwd, nil
+}
+
+func (t *TestDB) HasUser(ctx context.Context, uid UserID) (bool, error) {
+	t.RLock()
+	defer t.RUnlock()
+	_, ok := t.data[uid]
+	return ok, nil
 }
 
 func (t *TestDB) CreateUser(ctx context.Context, uid UserID, pwd Password) error {
@@ -26,8 +48,9 @@ func (t *TestDB) CreateUser(ctx context.Context, uid UserID, pwd Password) error
 	if exists {
 		return ErrUserExists
 	}
-
-	t.users = append(t.users, uid)
+	t.Lock()
+	defer t.Unlock()
+	t.data[uid] = pwd
 	return nil
 }
 

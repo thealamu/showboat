@@ -20,7 +20,7 @@ func main() {
 
 	cfg := ServerConfig{
 		logger:      logger,
-		db:          &TestDB{},
+		db:          NewTestDB(),
 		Addr:        getRunAddr(),
 		hmacSecret:  secret,
 		frontendURL: frontendURL,

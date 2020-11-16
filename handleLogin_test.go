@@ -7,19 +7,19 @@ import (
 	"strings"
 	"testing"
 
-	is "github.com/matryer/is"
+	"github.com/matryer/is"
 	log "github.com/sirupsen/logrus"
 )
 
-func TestHandleSignup(t *testing.T) {
+func TestHandleLogin(t *testing.T) {
 	is := is.New(t)
 
-	type signupRequest struct {
+	type loginRequest struct {
 		UserID   string `json:"userid"`
 		Password string `json:"password"`
 	}
 
-	type signupResponse struct {
+	type loginResponse struct {
 		Token string `json:"token"`
 	}
 
@@ -34,17 +34,18 @@ func TestHandleSignup(t *testing.T) {
 		password string
 		code     int
 	}{
-		{"GoodParams", "foobar", "foobarpassword", http.StatusCreated},
+		{"GoodParams", "user1369", "user1369Password", http.StatusOK},
+		{"WrongPassword", "user1369", "foobarpassword", http.StatusUnauthorized},
 		{"EmptyPassword", "user", "", http.StatusBadRequest},
 		{"EmptyUserID", "", "pwd", http.StatusBadRequest},
-		{"UserAlreadyExists", "foobar", "foob", http.StatusBadRequest},
+		{"UserDoesNotExist", "notexist", "foob", http.StatusUnauthorized},
 		{"BadUserID", "foo-bar", "foob", http.StatusBadRequest},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			body := strings.NewReader(fmt.Sprintf(`{"userid": "%s", "password": "%s"}`, tc.userid, tc.password))
-			req := httptest.NewRequest(http.MethodPost, "/signup", body)
+			req := httptest.NewRequest(http.MethodPost, "/login", body)
 			rr := httptest.NewRecorder()
 
 			srv.routes().ServeHTTP(rr, req)
