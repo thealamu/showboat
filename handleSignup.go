@@ -12,7 +12,7 @@ func (s *Server) handleSignup() http.HandlerFunc {
 	}
 
 	type signupResponse struct {
-		Token string `json: "token"`
+		Token string `json:"token"`
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
