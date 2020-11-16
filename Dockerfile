@@ -6,5 +6,11 @@ COPY . .
 RUN go get -v
 RUN go build -o showboat
 
+ARG FRONTEND_ARG
+ARG HMACSECRET_ARG
+
+ENV FRONTEND=$FRONTEND_ARG
+ENV HMACSECRET=$HMACSECRET_ARG
+
 CMD ["./showboat"]
 
