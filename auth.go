@@ -57,24 +57,30 @@ func (s *Server) createToken(userid string) (string, error) {
 	return token.SignedString([]byte(s.hmacSecret))
 }
 
+var ErrBadClaimType = errors.New("bad claim type stored in token")
+
+//claimFromToken returns the claim stored in a token
 func (s *Server) claimFromToken(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		// Don't forget to validate the alg is what you expect:
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return "", fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return s.hmacSecret, nil
+		return []byte(s.hmacSecret), nil
 	})
 	if err != nil {
 		return "", err
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		claim, ok := claims["uid"].(string)
-		if !ok {
-			return "", errors.New("error parsing token")
-		}
-		return claim, nil
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		return "", errors.New("error parsing token")
 	}
-	return "", errors.New("error parsing token")
+
+	claim, ok := claims["uid"].(string)
+	if !ok {
+		return "", ErrBadClaimType
+	}
+
+	return claim, nil
 }

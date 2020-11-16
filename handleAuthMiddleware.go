@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (s *Server) handlAuthMiddleware(next http.Handler) http.HandlerFunc {
+func (s *Server) handleAuthMiddleware(next http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		token := s.tokenFromHeader(r)
 		s.logger.Debugf("Stripped token %s", token)
@@ -16,7 +16,12 @@ func (s *Server) handlAuthMiddleware(next http.Handler) http.HandlerFunc {
 		}
 		userid, err := s.claimFromToken(token)
 		if err != nil {
+			statusCode := http.StatusUnauthorized
+			if err == ErrBadClaimType {
+				statusCode = http.StatusInternalServerError
+			}
 			s.logger.Warn(err)
+			s.Error(w, err, statusCode)
 			return
 		}
 
@@ -26,6 +31,7 @@ func (s *Server) handlAuthMiddleware(next http.Handler) http.HandlerFunc {
 }
 
 func (s *Server) tokenFromHeader(r *http.Request) string {
-	authHeader := r.Header.Get("Authentication")
-	return strings.TrimLeft("Bearer ", authHeader)
+	authHeader := r.Header.Get("Authorization")
+	s.logger.Debug(authHeader)
+	return strings.TrimPrefix(authHeader, "Bearer ")
 }
