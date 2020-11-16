@@ -51,7 +51,7 @@ func (s *Server) Start() error {
 func (s *Server) routes() http.Handler {
 	r := mux.NewRouter()
 
-	r.HandleFunc(fmt.Sprintf("/{id:%s}", UserIDFormat), s.handlePortfolioGet()).Methods(http.MethodGet)
+	r.HandleFunc(fmt.Sprintf("/{id:%s}", UserIDFormat), s.handlePortfolioGet()).Methods(http.MethodGet, http.MethodHead)
 	r.HandleFunc("/signup", s.handleSignup()).Methods(http.MethodPost)
 
 	return r
