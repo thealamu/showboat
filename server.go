@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/rs/cors"
+
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -12,9 +14,10 @@ import (
 // Server is a http server that holds handler dependencies
 type Server struct {
 	*http.Server
-	db         DB
-	logger     *log.Logger
-	hmacSecret string
+	db          DB
+	logger      *log.Logger
+	hmacSecret  string
+	frontendURL string
 }
 
 func NewServer(cfg ServerConfig) *Server {
@@ -25,6 +28,7 @@ func NewServer(cfg ServerConfig) *Server {
 		cfg.db,
 		cfg.logger,
 		cfg.hmacSecret,
+		cfg.frontendURL,
 	}
 	s.Handler = s.routes()
 	return s
@@ -50,9 +54,14 @@ func (s *Server) Start() error {
 
 func (s *Server) routes() http.Handler {
 	r := mux.NewRouter()
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{s.frontendURL},
+		AllowCredentials: false,
+		Debug:            false,
+	})
 
 	r.HandleFunc(fmt.Sprintf("/{id:%s}", UserIDFormat), s.handlePortfolioGet()).Methods(http.MethodGet, http.MethodHead)
 	r.HandleFunc("/signup", s.handleSignup()).Methods(http.MethodPost)
 
-	return r
+	return c.Handler(r)
 }

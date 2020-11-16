@@ -12,12 +12,14 @@ func main() {
 	logger.SetLevel(log.DebugLevel)
 
 	secret := os.Getenv("HMACSECRET")
+	frontendURL := os.Getenv("FRONTEND")
 
 	cfg := ServerConfig{
-		logger:     logger,
-		db:         &TestDB{},
-		Addr:       getRunAddr(),
-		hmacSecret: secret,
+		logger:      logger,
+		db:          &TestDB{},
+		Addr:        getRunAddr(),
+		hmacSecret:  secret,
+		frontendURL: frontendURL,
 	}
 
 	srv := NewServer(cfg)
