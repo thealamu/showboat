@@ -58,6 +58,7 @@ func (s *Server) routes() http.Handler {
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{s.frontendURL},
 		AllowCredentials: false,
+		AllowedHeaders:   []string{"*"},
 		Debug:            debug,
 	})
 
