@@ -54,10 +54,11 @@ func (s *Server) Start() error {
 
 func (s *Server) routes() http.Handler {
 	r := mux.NewRouter()
+	s.logger.Infof("Allowing CORS for %s", s.frontendURL)
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{s.frontendURL},
 		AllowCredentials: false,
-		Debug:            false,
+		Debug:            debug,
 	})
 
 	r.HandleFunc(fmt.Sprintf("/{id:%s}", UserIDFormat), s.handlePortfolioGet()).Methods(http.MethodGet, http.MethodHead)

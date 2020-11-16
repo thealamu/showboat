@@ -7,9 +7,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var debug = os.Getenv("DEBUG") == "1"
+
 func main() {
 	logger := log.New()
-	logger.SetLevel(log.DebugLevel)
+	if debug {
+		logger.SetLevel(log.DebugLevel)
+	}
 
 	secret := os.Getenv("HMACSECRET")
 	frontendURL := os.Getenv("FRONTEND")
@@ -20,6 +24,12 @@ func main() {
 		Addr:        getRunAddr(),
 		hmacSecret:  secret,
 		frontendURL: frontendURL,
+	}
+
+	if debug {
+		if err := cfg.Dump(os.Stdout); err != nil {
+			log.Warn("Could not dump config")
+		}
 	}
 
 	srv := NewServer(cfg)
