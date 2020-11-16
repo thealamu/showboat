@@ -61,8 +61,9 @@ func (s *Server) routes() http.Handler {
 		Debug:            debug,
 	})
 
-	r.HandleFunc(fmt.Sprintf("/{id:%s}", UserIDFormat), s.handlePortfolioGet()).Methods(http.MethodGet, http.MethodHead)
+	r.HandleFunc("/i/user", s.handleAuthMiddleware(s.handleUidForToken()))
 	r.HandleFunc("/signup", s.handleSignup()).Methods(http.MethodPost)
+	r.HandleFunc(fmt.Sprintf("/{id:%s}", UserIDFormat), s.handlePortfolioGet()).Methods(http.MethodGet, http.MethodHead)
 
 	return c.Handler(r)
 }
